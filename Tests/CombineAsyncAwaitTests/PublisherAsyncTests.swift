@@ -126,4 +126,20 @@ final class PublisherAsyncTests: XCTestCase {
         // Then: Verify that the task is cancelled
         XCTAssertTrue(task.isCancelled)
     }
+    
+    // Test for a publisher that delays its emission to verify async() awaits correctly.
+    func testDelayedPublisherEmitsValue() async {
+        // Given: A publisher that emits 7 after a 200ms delay
+        let publisher = Just(7)
+            .delay(for: .milliseconds(200), scheduler: DispatchQueue.global())
+        
+        // When: Retrieve value asynchronously and measure the delay
+        let start = Date()
+        let value = await publisher.async()
+        let elapsed = Date().timeIntervalSince(start)
+        
+        // Then: The value should be 7 and the delay should be at least 0.2s (allow small tolerance)
+        XCTAssertEqual(value, 7)
+        XCTAssertGreaterThanOrEqual(elapsed, 0.2)
+    }
 }
