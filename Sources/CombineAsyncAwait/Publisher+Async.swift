@@ -74,3 +74,60 @@ public extension Publisher {
         }
     }
 }
+
+public extension Publisher where Failure == Never {
+    /**
+     Retrieves the most recent value emitted by the publisher as an async value.
+     
+     This method bridges Combine's stream-based callbacks with Swift's async/await model. Since
+     the publisher never fails (Failure == Never), this version is non-throwing.
+     
+     Technical Details:
+     - Uses `withCheckedContinuation` to suspend the async context until the publisher completes.
+     - A cancellation handler (`withTaskCancellationHandler`) is used to instantly react if the task is cancelled.
+     - In case the task is cancelled or the publisher finishes without emitting any value, the current value (if any) is resumed.
+     
+     - Returns: The last emitted value before the publisher completes.
+     */
+    func async() async -> Output {
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                var lastValue: Output?
+                var didResume = false
+                var cancellable: AnyCancellable?
+                
+                // Helper to safely resume the continuation with the captured value.
+                func safeResume() {
+                    // Only resume if not already resumed and lastValue is set
+                    guard !didResume, let value = lastValue else { return }
+                    didResume = true
+                    // Cancel the subscription once we resume
+                    cancellable?.cancel()
+                    // Resume the async code
+                    continuation.resume(returning: value)
+                }
+                
+                // Subscribe to the publisher; capture values and handle completion
+                cancellable = self.sink(
+                    receiveCompletion: { completion in
+                        // Technically, since Failure == Never, completion is always .finished.
+                        // Resume the continuation with the last captured value.
+                        safeResume()
+                    },
+                    receiveValue: { value in
+                        // Update the lastValue with the most recent emitted value.
+                        lastValue = value
+                    }
+                )
+                
+                // In case the task is cancelled, attempt to resume safely.
+                if Task.isCancelled {
+                    safeResume()
+                }
+            }
+        } onCancel: {
+            // Cancellation handler: Additional cancellation logic could be placed here if needed.
+            // Since our cancellation logic is handled in safeResume, no further actions are taken.
+        }
+    }
+}
