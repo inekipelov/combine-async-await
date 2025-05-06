@@ -104,4 +104,26 @@ final class PublisherAsyncTests: XCTestCase {
         // Then: The task returns the expected value despite any late cancellation
         XCTAssertEqual(result, 42)
     }
+    
+    // Test for an infinite publisher to verify proper cancellation behavior when it never completes.
+    func testNeverEndingPublisherCancellation() async {
+        // Given: A publisher that never completes
+        let publisher = Empty<Int, Never>(completeImmediately: false)
+        
+        // When: Start an async task to retrieve a value from the never-ending publisher
+        let task = Task {
+            await publisher.async()
+        }
+        
+        // Allow the task to start
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        // Cancel the task
+        task.cancel()
+
+        // Allow cancellation to take effect
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // Then: Verify that the task is cancelled
+        XCTAssertTrue(task.isCancelled)
+    }
 }
