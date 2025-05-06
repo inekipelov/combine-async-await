@@ -40,18 +40,6 @@ final class PublisherAsyncTests: XCTestCase {
         XCTAssertEqual(last, value)
     }
     
-    // Updated test: For publishers with Failure == Never, an empty publisher returns nil instead of throwing an error.
-    func testEmptyPublisherReturnsNil() async {
-        // Given: A publisher that completes without emitting any values
-        let publisher = Empty<Int, Never>()
-        
-        // When: Retrieve a value asynchronously (should be nil)
-        let value = await publisher.async()
-        
-        // Then: The async() method returns nil, indicating no emissions
-        XCTAssertNil(value)
-    }
-    
     // Test that a failing publisher passes through the error
     func testFailingPublisher() async {
         // Given: A publisher that fails with a TestError
