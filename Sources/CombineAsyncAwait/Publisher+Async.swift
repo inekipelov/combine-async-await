@@ -52,7 +52,7 @@ public extension Publisher {
                             if let value = lastValue {
                                 safeResume(with: .success(value))
                             } else {
-                                safeResume(with: .failure(EmptyAsyncError()))
+                                safeResume(with: .failure(NoOutputError()))
                             }
                         case .failure(let error):
                             safeResume(with: .failure(error))
