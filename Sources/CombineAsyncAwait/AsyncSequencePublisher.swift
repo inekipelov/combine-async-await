@@ -128,7 +128,7 @@ private extension AsyncSequencePublisher {
 }
 
 /// Extension to make any AsyncSequence available as a Combine Publisher
-extension AsyncSequence where Element: Sendable, Self: Sendable {
+public extension AsyncSequence where Element: Sendable, Self: Sendable {
     /// Returns a publisher that emits elements from this AsyncSequence
     public var publisher: AsyncSequencePublisher<Self> {
         AsyncSequencePublisher(self)
