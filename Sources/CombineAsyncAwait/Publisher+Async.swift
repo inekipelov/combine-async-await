@@ -20,13 +20,13 @@ public extension Publisher {
        if the surrounding task is cancelled.
      - Internally, it subscribes via `sink`, capturing the last emitted value before the publisher 
        completes. If the publisher completes without emitting a value, the function throws the 
-       `EmptyAsyncError`.
+       `NoOutputError`.
      - Note: Starting with Swift 5.5 and further enhanced in Swift 5.7, Swift provides a built-in 
        construct (`publisher.values`) that allows reacting to every signal emitted by a publisher 
        as an async sequence. This can be used to process each value individually in a for-await-in loop.
      
      - Returns: The last value emitted by the publisher before completion.
-     - Throws: The publisher’s error, or `EmptyAsyncError` if the publisher completes without emitting any value.
+     - Throws: The publisher’s error, or `NoOutputError` if the publisher completes without emitting any value.
      */
     func async() async throws -> Output {
         try await withTaskCancellationHandler {
