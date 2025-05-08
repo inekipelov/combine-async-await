@@ -37,22 +37,13 @@ import Combine
 import CombineAsyncAwait
 
 // Convert a publisher to an async call
+// Non-throwing version for publishers that never fail
 let publisher = Just(5)
 Task {
-    do {
-        let value = try await publisher.async()
-        print(value) // 5
-    } catch {
-        print("Error: \(error)")
-    }
+    await publisher.async()
+    print(value) // 5
 }
 
-// Non-throwing version for publishers that never fail
-let neverFailingPublisher = Just(10)
-Task {
-    let value = await neverFailingPublisher.async()
-    print(value) // 10
-}
 ```
 
 ### Error Handling
@@ -66,19 +57,6 @@ Task {
         print(value)
     } catch {
         print("Caught error: \(error)") // Will print the NSError
-    }
-}
-
-// Publisher that completes without emitting values
-let emptyPublisher = Empty<Int, Never>()
-Task {
-    do {
-        let value = try await emptyPublisher.async()
-        print(value)
-    } catch let error as NoOutputError {
-        print(error.localizedDescription) // "Publisher completed without producing any values"
-    } catch {
-        print("Other error: \(error)")
     }
 }
 ```
