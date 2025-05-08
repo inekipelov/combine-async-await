@@ -36,10 +36,10 @@ private extension AsyncSequencePublisher {
             self.sequence = sequence
             
             // Start the task after initialization to avoid object capture issues
-            startTask()
+            setupAsyncSequenceSubscription()
         }
         
-        private func startTask() {
+        private func setupAsyncSequenceSubscription() {
             // Create an asynchronous task that will receive elements from AsyncSequence
             // and deliver them to the Combine subscriber with proper backpressure handling
             task = Task { [weak self] in
