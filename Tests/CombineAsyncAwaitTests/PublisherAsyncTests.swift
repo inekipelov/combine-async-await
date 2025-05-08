@@ -130,4 +130,21 @@ final class PublisherAsyncTests: XCTestCase {
         XCTAssertEqual(value, 7)
         XCTAssertGreaterThanOrEqual(elapsed, 0.2)
     }
+    
+    // Test for a publisher that completes without emitting any values
+    func testEmptyPublisherThrowsNoOutputError() async {
+        // Given: A publisher that completes immediately without emitting any values
+        let publisher = Empty<Int, Never>(completeImmediately: true)
+        
+        // When/Then: Attempt to retrieve a value asynchronously and expect NoOutputError
+        do {
+            _ = try await publisher.setFailureType(to: Error.self).async()
+            XCTFail("Expected to throw NoOutputError, but did not throw")
+        } catch let error as NoOutputError {
+            // Then: The NoOutputError is correctly thrown
+            XCTAssertEqual(error.localizedDescription, "Publisher completed without producing any values")
+        } catch {
+            XCTFail("Incorrect error type: \(error), expected NoOutputError")
+        }
+    }
 }
