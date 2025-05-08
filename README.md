@@ -41,7 +41,7 @@ import CombineAsyncAwait
 // Non-throwing version for publishers that never fail
 let publisher = Just(5)
 Task {
-    await publisher.async()
+    let value = await publisher.async()
     print(value) // 5
 }
 
@@ -118,6 +118,7 @@ let cancellable = publisher
 ```swift
 // Using task-style sink for asynchronous handlers
 let publisher = [1, 2, 3].publisher
+let cancellables = Set<AnyCancellable>()
 
 publisher.task { value in
     // This closure can contain async code
@@ -131,11 +132,13 @@ publisher.task { value in
         await handleError(error)
     }
 }
+.store(in: &cancellables)
 
 // Specify task priority
 publisher.task(priority: .high) { value in
     await processPriorityData(value)
 }
+.store(in: &cancellables)
 ```
 
 ## License
