@@ -8,6 +8,7 @@ A lightweight Swift library providing async/await bridge for Combine publishers.
 - Handle task cancellation properly
 - Support for task-based asynchronous subscription
 - Specialized handling for publishers that never fail
+- Convert AsyncSequence to Combine Publishers with proper backpressure handling
 
 ## Requirements
 
@@ -59,6 +60,57 @@ Task {
         print("Caught error: \(error)") // Will print the NSError
     }
 }
+```
+
+### AsyncSequence to Publisher
+
+```swift
+// Convert any AsyncSequence to a Combine Publisher
+import Combine
+import CombineAsyncAwait
+
+struct NumberGenerator: AsyncSequence, AsyncIteratorProtocol {
+    typealias Element = Int
+    
+    var current = 0
+    let max: Int
+    
+    init(max: Int) {
+        self.max = max
+    }
+    
+    mutating func next() async -> Int? {
+        guard current < max else { return nil }
+        defer { current += 1 }
+        // Simulate async work
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        return current
+    }
+    
+    func makeAsyncIterator() -> Self {
+        self
+    }
+}
+
+// Use the AsyncSequence with Combine
+let numberSequence = NumberGenerator(max: 5)
+let publisher = numberSequence.publisher
+
+// Now you can use this publisher with standard Combine operators
+let cancellable = publisher
+    .map { $0 * 2 }
+    .sink(
+        receiveCompletion: { print("Completed with: \($0)") },
+        receiveValue: { print("Received: \($0)") }
+    )
+
+// Output:
+// Received: 0
+// Received: 2
+// Received: 4
+// Received: 6
+// Received: 8
+// Completed with: finished
 ```
 
 ### Task-Based Subscription
