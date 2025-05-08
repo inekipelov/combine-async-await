@@ -21,11 +21,11 @@ A lightweight Swift library providing async/await bridge for Combine publishers.
 Add the following dependency to your `Package.swift` file:
 
 ```swift
-// For development
-.package(url: "https://github.com/inekipelov/combine-async-await.git", branch: "main")
+// Use the latest release
+.package(url: "https://github.com/inekipelov/combine-async-await.git", from: "0.1.0")
 
 // Or specify a commit hash for stability
-// .package(url: "https://github.com/inekipelov/combine-async-await.git", .revision("commit-hash"))
+.package(url: "https://github.com/inekipelov/combine-async-await.git", .revision("commit-hash"))
 ```
 
 ## Usage
