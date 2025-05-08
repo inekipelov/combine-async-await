@@ -81,8 +81,10 @@ private extension AsyncSequencePublisher {
                             // If the subscriber is not ready to receive data (demand = 0),
                             // wait until demand appears using exponential backoff strategy
                             var sleepTime: UInt64 = 1_000_000 // Start with 1ms delay
+                            let maxRetries = 10 // Limit the number of retries
+                            var retryCount = 0
                             
-                            while !Task.isCancelled {
+                            while !Task.isCancelled && retryCount < maxRetries {
                                 // Check if demand has appeared
                                 let hasDemand = self.lock.withLock { self.demand > .none }
                                 if hasDemand { break }
@@ -90,6 +92,7 @@ private extension AsyncSequencePublisher {
                                 // Wait with maximum delay cap at 50ms
                                 try await Task.sleep(nanoseconds: Swift.min(sleepTime, 50_000_000))
                                 sleepTime *= 2 // Increase wait time exponentially
+                                retryCount += 1
                             }
                             
                             if Task.isCancelled { break }
