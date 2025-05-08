@@ -23,7 +23,7 @@ Add the following dependency to your `Package.swift` file:
 
 ```swift
 // Use the latest release
-.package(url: "https://github.com/inekipelov/combine-async-await.git", from: "0.1.0")
+.package(url: "https://github.com/inekipelov/combine-async-await.git", from: "0.2.0")
 
 // Or specify a commit hash for stability
 .package(url: "https://github.com/inekipelov/combine-async-await.git", .revision("commit-hash"))
