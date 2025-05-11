@@ -1,4 +1,4 @@
-// Publisher+Async.swift
+// AsyncSequencePublisher.swift
 // Async/await extensions for Combine publishers
 
 import Combine

@@ -1,4 +1,4 @@
-// Publisher+Async.swift
+// NoOutputError.swift
 // Async/await extensions for Combine publishers
 
 import Foundation
