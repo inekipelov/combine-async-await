@@ -111,40 +111,41 @@ final class PublisherTaskTests: XCTestCase {
         let backgroundPriorityExpectation = expectation(description: "Background priority task")
         
         actor TaskPriorityCollector {
-            private(set) var taskPriorities: [TaskPriority] = []
-            func append(_ value: TaskPriority) {
+            private(set) var taskPriorities: [TaskPriority?] = []
+            func append(_ value: TaskPriority?) {
                 taskPriorities.append(value)
             }
         }
         let collector = TaskPriorityCollector()
         
-        // Several heavy publishers executing concurrently
+        // Test that task is created with high priority
         let highPriorityPublisher = Just(1)
-        let bgPriorityPublisher = Just(2)
-        
-        _ = bgPriorityPublisher.task(priority: .background) { _ in
-            // Simulate CPU-intensive work
-            for _ in 1...1000 { _ = sqrt(Double.random(in: 1...1000)) }
-            
-            await collector.append(.background)
-            backgroundPriorityExpectation.fulfill()
+        _ = highPriorityPublisher.task(priority: .high) { _ in
+            // Verify the current task's priority matches what we set
+            await collector.append(Task.currentPriority)
+            highPriorityExpectation.fulfill()
         }
         
-        _ = highPriorityPublisher.task(priority: .high) { _ in
-            // Simulate CPU-intensive work
-            for _ in 1...1000 { _ = sqrt(Double.random(in: 1...1000)) }
-            
-            await collector.append(.high)
-            highPriorityExpectation.fulfill()
+        // Test that task is created with background priority
+        let bgPriorityPublisher = Just(2)
+        _ = bgPriorityPublisher.task(priority: .background) { _ in
+            // Verify the current task's priority matches what we set
+            await collector.append(Task.currentPriority)
+            backgroundPriorityExpectation.fulfill()
         }
         
         await fulfillment(of: [highPriorityExpectation, backgroundPriorityExpectation], timeout: 3)
         
-        // We're only verifying both tasks completed successfully
-        let first = await collector.taskPriorities.first
-        let last = await collector.taskPriorities.last
-        XCTAssertEqual(first, .high, "First task should be high priority")
-        XCTAssertEqual(last, .background, "Last task should be background priority")
+        // Get priorities that were actually applied to the tasks
+        let priorities = await collector.taskPriorities
+        
+        // Verify both tasks completed
+        XCTAssertEqual(priorities.count, 2, "Both tasks should have completed")
+        
+        // Verify the correct priorities were applied to tasks
+        // Note: We don't assert the order, just that both priorities are present
+        XCTAssertTrue(priorities.contains(.high), "A task should have high priority")
+        XCTAssertTrue(priorities.contains(.background), "A task should have background priority")
     }
     
     func testTaskDefaultCompletion() async {
