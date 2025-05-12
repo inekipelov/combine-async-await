@@ -1,5 +1,9 @@
 # CombineAsyncAwait
 
+[![Swift Version](https://img.shields.io/badge/Swift-5.5+-orange.svg)](https://swift.org/)
+[![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A lightweight Swift library providing async/await bridge for Combine publishers.
 
 ## Features
