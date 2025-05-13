@@ -218,7 +218,6 @@ let cancellable = itemsStream.publisher.sink(receiveCompletion: { completion in
 // Received item: Item 2
 // Loading error: networkError
 ```
-```
 
 ### Task-Based Subscription
 
