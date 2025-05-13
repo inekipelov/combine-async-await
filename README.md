@@ -14,6 +14,7 @@ A lightweight Swift library providing async/await bridge for Combine publishers.
 - Support for task-based asynchronous subscription
 - Specialized handling for publishers that never fail
 - Convert AsyncSequence to Combine Publishers with proper backpressure handling
+- Convert AsyncStream and AsyncThrowingStream to Combine Publishers
 
 ## Requirements
 
@@ -116,6 +117,107 @@ let cancellable = publisher
 // Received: 6
 // Received: 8
 // Completed with: finished
+```
+
+### AsyncStream to Publisher
+
+```swift
+// Convert AsyncStream to Combine Publisher
+import Combine
+import CombineAsyncAwait
+
+// Create AsyncStream directly
+let countdownStream = AsyncStream<Int> { continuation in
+    // Start a task to generate values
+    Task {
+        for i in (0...5).reversed() {
+            continuation.yield(i)
+            try? await Task.sleep(for: .seconds(1))
+        }
+        continuation.finish()
+    }
+}
+
+// Convert AsyncStream to Publisher directly
+let cancellable = countdownStream.publisher.sink { value in
+    print("Countdown: \(value)")
+}
+
+// Output:
+// Countdown: 5
+// Countdown: 4
+// Countdown: 3
+// Countdown: 2
+// Countdown: 1
+// Countdown: 0
+```
+
+### AsyncThrowingStream to Publisher
+
+```swift
+// Convert AsyncThrowingStream to Combine Publisher
+import Combine
+import CombineAsyncAwait
+
+// Define possible errors
+enum LoadError: Error {
+    case networkError
+    case decodingError
+}
+
+// Create AsyncThrowingStream directly
+let itemsStream = AsyncThrowingStream<String, Error> { continuation in
+    Task {
+        do {
+            // Simulate data loading
+            try await Task.sleep(for: .seconds(1))
+            
+            // First item successfully loaded
+            continuation.yield("Item 1")
+            
+            try await Task.sleep(for: .seconds(1))
+            
+            // Second item successfully loaded
+            continuation.yield("Item 2")
+            
+            try await Task.sleep(for: .seconds(1))
+            
+            // Simulate random network error
+            if Bool.random() {
+                throw LoadError.networkError
+            }
+            
+            // Third item successfully loaded
+            continuation.yield("Item 3")
+            
+            // Complete the stream
+            continuation.finish()
+        } catch {
+            // Pass error to the stream
+            continuation.finish(throwing: error)
+        }
+    }
+}
+
+// Convert AsyncThrowingStream to Publisher directly and subscribe
+let cancellable = itemsStream.publisher.sink(receiveCompletion: { completion in
+        switch completion {
+        case .finished:
+            print("Loading completed successfully")
+        case .failure(let error):
+            print("Loading error: \(error)")
+        }
+    },
+    receiveValue: { item in
+        print("Received item: \(item)")
+    }
+)
+
+// Possible output:
+// Received item: Item 1
+// Received item: Item 2
+// Loading error: networkError
+```
 ```
 
 ### Task-Based Subscription
