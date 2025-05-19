@@ -23,12 +23,14 @@ let package = Package(
         .target(
             name: "CombineAsyncAwait",
             dependencies: [],
+            path: "Sources",
             linkerSettings: [
                 .linkedFramework("Combine")
             ]),
         .testTarget(
             name: "CombineAsyncAwaitTests",
             dependencies: ["CombineAsyncAwait"],
+            path: "Tests",
             linkerSettings: [
                 .linkedFramework("Combine")
             ]),
