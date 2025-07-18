@@ -176,7 +176,8 @@ let cancellable1 = Task {
 let cancellable2 = Task {
     try await someAsyncOperation()
     return "Success!"
-}.sink(
+}.publisher
+.sink(
     receiveCompletion: { completion in
         switch completion {
         case .finished: print("Completed")
