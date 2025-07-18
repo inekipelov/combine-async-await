@@ -11,29 +11,6 @@
 
 A lightweight Swift library providing async/await bridge for Combine publishers.
 
-## Features
-
-- Convert Combine publishers to async/await compatible functions
-- Handle task cancellation properly
-- Support for task-based asynchronous subscription
-- Specialized handling for publishers that never fail
-- Convert AsyncSequence to Combine Publishers with proper backpressure handling
-- Convert AsyncStream and AsyncThrowingStream to Combine Publishers
-
-## Installation
-
-### Swift Package Manager
-
-Add the following dependency to your `Package.swift` file:
-
-```swift
-// Use the latest release
-.package(url: "https://github.com/inekipelov/combine-async-await.git", from: "0.2.0")
-
-// Or specify a commit hash for stability
-.package(url: "https://github.com/inekipelov/combine-async-await.git", .revision("commit-hash"))
-```
-
 ## Usage
 
 ### Basic Async Conversion
@@ -246,6 +223,14 @@ publisher.task(priority: .high) { value in
 .store(in: &cancellables)
 ```
 
-## License
+## Installation
 
-MIT License - See LICENSE file for details
+Add the following dependency to your `Package.swift` file:
+
+```swift
+// Use the latest release
+.package(url: "https://github.com/inekipelov/combine-async-await.git", from: "0.2.0")
+
+// Or specify a commit hash for stability
+.package(url: "https://github.com/inekipelov/combine-async-await.git", .revision("commit-hash"))
+```
